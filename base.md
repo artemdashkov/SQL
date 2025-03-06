@@ -3,6 +3,7 @@
 - [Запросы](#Запросы)
     - [SELECT](#select-таблицы)
     - [WHERE](#WHERE)
+    - [HAVING](#HAVING)
     - [ORDER BY](#order-by---сортировка-данных)
     - [LIMIT И OFFSET](#LIMIT-И-OFFSET---ограничения)
     - [LIKE](#LIKE)
@@ -230,6 +231,28 @@ where not book_average_rating >= 4
 ### Кортеж
 В случае реляционных БД кортеж — это строка в таблице. Для поиска по строкам (кортежам) используется ключевое слово WHERE, после которого перечисляются условия на кортежи данных.
 
+
+## HAVING
+Если ключевое слово WHERE определяет фильтрацию строк, то ключевое слово HAVING применяется после группировки (GROUP BY) для определения аналогичной фильтрации, но по значениям агрегатных функций в группах.
+
+Это необходимо для проверки значений, которые получены с помощью агрегатной функции не из отдельных строк источника записей, определенного в предложении FROM, а из групп таких строк. Поэтому такая проверка не может содержаться в предложении WHERE.
+
+В самом SELECT не обязательно указывать агрегатную функцию, которая используется в HAVING. Также заметим, что в предложении HAVING нельзя использовать псевдоним (например, books_count), используемый для именования значений агрегатной функции в предложении SELECT, так как обработка названий столбцов для вывода на экран производится позже, чем фильтрация значений агрегатных функций.
+
+```sql
+select author 
+from books 
+group by author 
+having count(book_id) > 10;
+```
+
+Условия в HAVING можно комбинировать так же, как и в WHERE, то есть с использованием скобок, and и or:
+```sql
+select author, count(book_id) books_count
+from books 
+group by author 
+having count(book_id) > 10 and avg(book_average_rating) > 3.8;
+```
 
 ## ORDER BY - Сортировка данных
 Ключевое слово `ORDER BY` используется для сортировки данных. Оно указывается в самом конце запроса (если в запросе нет LIMIT или OFFSET). После `ORDER BY` через запятую передаются названия колонок, по которым должна проходить сортировка. Сортировка тяжелая операция, поэтому лишний раз ее не использовать. Желательно для наглядности использовать `ORDER BY` даже если не просят.
@@ -464,6 +487,16 @@ order by publishing_year desc;
 Здесь мы сначала выделили только те книги, у которых год публикации больше или равен 2010, затем сгруппировали оставшиеся строки по publishing_year (отдельная группа для каждого publishing_year), потом посчитали количество книг (book_id) в каждой группе, а затем отсортировали по publishing_year по убыванию.
 
 `GROUP BY можно использовать и без агрегатных функций. Тогда его действие будет равносильно действию DISTINCT.`
+```sql
+select publishing_year
+from books
+group by publishing_year
+order by publishing_year
+
+select distinct publishing_year
+from books
+order by publishing_year
+```
 
 `GROUP BY можно использовать для любого количества столбцов (комбинаций столбцов) таблицы. Например, если мы хотим получить средние оценки и количество книг, вышедших с 2005 до 2010 года, в разбивке по жанру и году публикации книги, и отсортировать по убыванию по средней оценки книги в группе, мы можем написать так.`
 
@@ -539,6 +572,32 @@ ABS(1) = 1
 SELECT Агрегация(над чем)
 FROM Таблица
 ```
+```sql
+select max(book_average_rating) as max_rating 
+from books;
+-- max_rating 4.77777
+```
+```sql
+select max(book_average_rating) as max_rating
+	, min(book_average_rating) as min_rating
+	, avg(book_average_rating) as average_rating
+	, sum(book_ratings_count) as books_ratings
+from books;
+-- вывод 4 колонки с результатами
+```
+```sql
+select max(book_average_rating) as max_rating
+	, min(book_average_rating) as min_rating
+	, avg(book_average_rating) as average_rating
+	, sum(book_ratings_count) as books_ratings
+	, count(book_id) as books_count
+from books
+where language_code = 'eng'; -- c дополнительным условием - фильтром
+-- вывод 5 колонок и 1 строка
+```
+
+
+
 
 ```sql
 select sum(hp) sum_hp -- сложить все значения в колонке hp
