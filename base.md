@@ -970,6 +970,8 @@ from
 ```
 
 
+
+
 ## INNER И OUTER JOIN. СИНТАКСИС
 Существует два основных вида соединения таблиц — внутреннее и внешнее (INNER и OUTER).
 - `Внутреннее соединение (INNER JOIN)` подразумевает, что в результате останутся кортежи из обеих таблиц, удовлетворяющие условию соединения; остальные будут отброшены
@@ -994,4 +996,22 @@ select *
 from customer
 join ordersum
 on ordersum.customerid = customer.customerid
+```
+
+
+### СОЕДИНЕНИЕ БОЛЕЕ ДВУХ ТАБЛИЦ
+```sql
+select 
+    s.ship_date,
+    t.model_year,
+    c.city_name,
+    count(*) shipments
+from 
+    shipping.shipment s
+        join shipping.truck t on s.truck_id = t.truck_id
+        join shipping.city c on s.city_id = c.city_id
+group by     
+    s.ship_date,
+    t.model_year,
+    c.city_name
 ```
