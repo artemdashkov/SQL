@@ -1127,3 +1127,11 @@ select
 from 
     shipping.driver,shipping.customer
 ```
+
+### USING
+используется для упрощения синтаксиса при объединении таблиц, у которых одинаковое имя столбца
+```sql
+select city_name, population
+from pop
+join dens using(city_id) --on dens.city_id = pop.city_id
+```
