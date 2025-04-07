@@ -9,11 +9,11 @@
     - [LIKE](#LIKE)
     - [DISTINCT](#DISTINCT)
     - [GROUP BY](#GROUP-BY)
+    - [EXTRACT](#EXTRACT)
 - [Математические функции](#Математические-функции)
 - [Агрегатные функции](#Агрегатные-функции)
 - [Связи](#Связи)
 - [JOIN](#JOIN)
-
 
 
 # Теория. Определения.
@@ -530,6 +530,24 @@ order by publishing_year
 select author, publishing_year > 1950 after_fifties, count(book_id)
 from books
 group by 1, after_fifties;
+```
+
+## EXTRACT
+```sql
+SELECT
+    EXTRACT(MONTH FROM o.order_date) AS order_month,
+    COUNT(*) AS cnt
+FROM
+    other.book_orders AS o
+JOIN
+    other.books AS b ON o.book_id = b.book_id
+WHERE
+    b.publishing_year >= 2021 - 10
+    AND o.order_date >= '2019-01-01'
+GROUP BY
+    order_month
+ORDER BY
+    order_month DESC;
 ```
 
 
