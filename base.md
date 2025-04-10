@@ -12,6 +12,7 @@
     - [EXISTS](#EXISTS)
     - [EXTRACT](#EXTRACT)
     - [INSERT](#INSERT)
+    - [IN](*IN)
 - [Математические функции](#Математические-функции)
 - [Агрегатные функции](#Агрегатные-функции)
 - [Связи](#Связи)
@@ -537,11 +538,60 @@ group by 1, after_fifties;
 ## EXISTS
 Cинтаксис SQL позволяет непосредственно в разделе where обращаться к полям другой таблицы. 
 `EXISTS` - возвращает true, если результатом запроса является хотя бы одна строка, и false, если не существует ни одной.
-
+`EXISTS` синтаксически более понятен в случае фильтрации. Помимо этого он часто работает быстрее JOIN, так как не требует проверки всех записей вложенного запроса на соответствие условию: при встрече хотя бы одной удовлетворяющей строки он возвращает true и далее не сканирует таблицы.
+```sql
+SELECT 
+  distinct state 
+from 
+  shipping.city c 
+where 
+  exists (
+    select 
+      * 
+    from 
+      shipping.shipment s
+  ) 
+  and s.city_id = c.city_id 
+order by 
+  1
+```
 
 
 
 ## EXTRACT
+В SQL `EXTRACT` используется для извлечения подчастей из даты или временного интервала. Это может быть полезно, например, когда нужно получить год, месяц, день или другие составляющие даты для анализа.
+
+Вот несколько часто используемых полей при использовании `EXTRACT`:
+- `YEAR`
+- `MONTH`
+- `DAY`
+- `HOUR`
+- `MINUTE`
+- `SECOND`
+
+
+```sql
+EXTRACT(field FROM source)  
+-- field: Это то, что вы хотите извлечь (например, YEAR, MONTH, DAY, HOUR, MINUTE и т.д.).
+-- source: Это значение даты или временного интервала, из которого вы хотите извлечь информацию.
+
+-- Извлечение года:
+SELECT EXTRACT(YEAR FROM hire_date) AS hire_year  
+FROM employees;  
+
+-- Извлечение месяца:
+SELECT EXTRACT(MONTH FROM order_date) AS order_month  
+FROM orders;  
+
+-- Извлечение дня:
+SELECT EXTRACT(DAY FROM current_date) AS today  
+FROM dual;  
+
+-- Извлечение времени:
+SELECT EXTRACT(HOUR FROM order_time) AS order_hour  
+FROM orders;  
+```
+
 ```sql
 SELECT
     EXTRACT(MONTH FROM o.order_date) AS order_month,
@@ -568,7 +618,30 @@ SELECT author, COUNT(author), COUNT(amount), COUNT(*)
 FROM book
 GROUP BY author;
 ```
- 
+
+# IN
+`IN` - с его помощью можно фильтровать значения в конкретном столбце.
+
+```sql
+-- выведет все штаты, в которых есть водители с указанным номером телефона.
+SELECT 
+  distinct state 
+from 
+  shipping.city c 
+where 
+  c.city_id in (
+    select 
+      d.city_id 
+    from 
+      shipping.driver d 
+    where 
+      d.phone is not null
+  ) 
+order by 
+  1
+```
+После указания названия поля пишется предикат IN. За ним — запрос, возвращающий любое количество строк, но обязательно только один столбец того же типа, что и фильтруемый. В нашем случае city_id может быть отфильтрован только другим целочисленным подзапросом. Если бы в SELECT после IN был текст или логический тип, вернулась бы ошибка несоответствия типов.
+
 # Математические функции
 `CEILING(x)` - возвращает наименьшее целое число, большее или равное x (округляет до целого числа в большую сторону), прмиер 
 ```sql
