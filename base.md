@@ -17,6 +17,10 @@
 - [Агрегатные функции](#Агрегатные-функции)
     -[COUNT](#COUNT)
 - [Связи](#Связи)
+    - [information_schema](#information_schema)
+        - [information_schema.tables](#information_schematables)
+        - [information_schema.columns](#information_schemacolumns)
+        - [information_schema.table_constraints](#information_schematable_constraints)
 - [JOIN](#JOIN)
 
 
@@ -1005,7 +1009,21 @@ ORDER BY 1, 3 DESC;
 
 
 # Связи
-## information_schema.tables
+## information_schema
+`information_schema` — это системная схема в базе данных SQL (в том числе в PostgreSQL), которая содержит метаданные о самой базе данных.
+Проще говоря:
+- Это "специальный" набор таблиц и видов, в которых хранится информация о структуре БД: список таблиц, столбцов, их типы, ограничения, индексы и т.д.
+- Он помогает получать данные о структуре базы, не заглядывая напрямую внутрь системы.
+
+В PostgreSQL все основные сведения о таблицах, столбцах и других объектах базы данных содержатся именно в information_schema, что делает его очень удобным для получения метаданных.
+
+Например, таблицы внутри `information_schema`:
+- `tables` — список таблиц в базе.
+- `columns` — описание столбцов таблиц.
+- `views` — описание представлений.
+- `schemata` — схемы базы.
+
+### information_schema.tables
 это список всех таблиц.
 
 С помощью такого запроса мы можем увидеть список всех таблиц, относящихся к нашему датасету.
@@ -1041,7 +1059,7 @@ is_insertable_into	            yes_or_no	YES, если в эту таблицу 
 is_typed	                    yes_or_no	YES, если эта таблица является типизированной, иначе NO
 commit_action	                character_data	Ещё не реализовано
 
-## information_schema.columns
+### information_schema.columns
 можно посмотреть данные обо всех столбцах в таблицах, их типах и свойствах
 
 С помощью такого запроса мы можем увидеть список всех полей и их типов в таблице city в схеме shipping.
@@ -1059,7 +1077,7 @@ where
     and c.table_name = 'city'
 ```
 
-##  information_schema.table_constraints
+###  information_schema.table_constraints
 Последняя таблица, которая нам будет интересна в рамках этого блока — таблица, в которой хранится информация о первичных и внешних ключах в таблицах. С помощью такого запроса мы можем увидеть все ключи таблицы shipment нашего датасета.
 ```sql
 select 
